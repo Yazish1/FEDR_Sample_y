@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- FIX 1: viewport meta tag added -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow – Settings</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="shell">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-text">TaskFlow</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Menu</div>
+      <!-- FIX 2: .html extensions added -->
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="tasks.html" class="nav-item">
+        <span class="nav-icon">✅</span> Tasks
+        <span class="nav-badge" id="sidebar-task-count">0</span>
+      </a>
+      <a href="archive.html" class="nav-item">
+        <span class="nav-icon">📦</span> Archive
+      </a>
+      <a href="settings.html" class="nav-item active">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JD</div>
+        <div class="user-info">
+          <div class="user-name">Jamie Doe</div>
+          <div class="user-role">Developer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="content">
+
+    <!-- Top Bar — FIX 8: symmetric padding now in CSS, no per-page change needed -->
+    <header class="topbar">
+      <!-- FIX 13: mobile sidebar toggle -->
+      <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+      <h1 class="topbar-title">Settings</h1>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body" id="settings-root">
+
+      <div class="settings-layout">
+
+        <!-- Settings Nav -->
+        <nav class="settings-nav">
+          <span class="settings-nav-item active" data-tab="profile">👤 Profile</span>
+          <span class="settings-nav-item" data-tab="notifications">🔔 Notifications</span>
+          <span class="settings-nav-item" data-tab="appearance">🎨 Appearance</span>
+          <span class="settings-nav-item" data-tab="data">🗄️ Data</span>
+        </nav>
+
+        <!-- Settings Panels -->
+        <div>
+
+          <!-- Profile Panel (visible by default) -->
+          <div class="settings-panel" data-panel="profile" style="display:flex;flex-direction:column;gap:1rem;">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">Profile Information</div>
+              </div>
+              <div class="settings-card-body" style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Display Name</label>
+                  <input type="text" class="form-control" value="Jamie Doe" />
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Email</label>
+                  <!-- FIX 9b: type changed from "text" to "email" for proper validation -->
+                  <input type="email" class="form-control" value="jamie@taskflow.dev" />
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Role</label>
+                  <input type="text" class="form-control" value="Developer" />
+                </div>
+                <div>
+                  <button class="btn btn-primary" id="btn-save-profile">Save Changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications Panel -->
+          <div class="settings-panel" data-panel="notifications" style="display:none;flex-direction:column;gap:1rem;">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">Notification Preferences</div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Task Due Reminders</div>
+                    <div class="settings-row-sub">Get notified when a task is due soon</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Overdue Alerts</div>
+                    <div class="settings-row-sub">Alert when tasks pass their due date</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Weekly Summary</div>
+                    <div class="settings-row-sub">Receive a weekly digest of your progress</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Appearance Panel -->
+          <div class="settings-panel" data-panel="appearance" style="display:none;flex-direction:column;gap:1rem;">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">Appearance</div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Compact Mode</div>
+                    <div class="settings-row-sub">Reduce padding for a denser layout</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" /><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Show Sidebar Labels</div>
+                    <div class="settings-row-sub">Always show text labels next to icons</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Panel -->
+          <div class="settings-panel" data-panel="data" style="display:none;flex-direction:column;gap:1rem;">
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-title">Data Management</div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Total tasks stored</div>
+                    <div class="settings-row-sub" id="settings-task-count">Calculating…</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-card danger-zone">
+              <div class="settings-card-header">
+                <div class="settings-card-title" style="color:var(--danger)">⚠️ Danger Zone</div>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-row">
+                  <div>
+                    <div class="settings-row-label">Delete all tasks</div>
+                    <div class="settings-row-sub">Permanently removes every task. Cannot be undone.</div>
+                  </div>
+                  <button class="btn btn-danger" id="btn-clear-tasks">Delete All</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /panels wrapper -->
+
+      </div><!-- /settings-layout -->
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/app.js"></script>
+<script src="js/ui.js"></script>
+<script>
+  const count = loadTasks().filter(t => !t.archived && !t.done).length;
+  const badge = document.getElementById('sidebar-task-count');
+  if (badge) badge.textContent = count;
+
+  const taskCountEl = document.getElementById('settings-task-count');
+  if (taskCountEl) taskCountEl.textContent = loadTasks().length + ' tasks in storage';
+</script>
+</body>
+</html>
