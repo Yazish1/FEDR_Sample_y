@@ -1,115 +1,99 @@
 /* =====================================================
-   TASKFLOW — Shared App State & Utilities (app.js)
+   TASKFLOW — Shared Data & Utility Layer (app.js)
    ===================================================== */
 
-// ===== STORAGE =====
-// FIX 19: STORAGE_KEY typo corrected ('taks' → 'tasks');
-//         loadTasks() now uses the same constant so data persists across pages
-const STORAGE_KEY = 'taskflow_tasks';
+const TF = {
+  // ── Storage Keys ─────────────────────────────────────
+  USERS:       'tf_users',
+  SESSION:     'tf_session',
+  ASSIGNMENTS: 'tf_assignments',
+  SUBMISSIONS: 'tf_submissions',
+  ptKey: uid  => `tf_pt_${uid}`,
+  peKey: uid  => `tf_pe_${uid}`,
 
-function saveTasks(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
+  // ── Users ─────────────────────────────────────────────
+  getUsers()        { try { return JSON.parse(localStorage.getItem(this.USERS)  || '[]'); } catch { return []; } },
+  saveUsers(u)      { localStorage.setItem(this.USERS,  JSON.stringify(u)); },
 
-function loadTasks() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
+  // ── Session ───────────────────────────────────────────
+  getSession()      { try { return JSON.parse(localStorage.getItem(this.SESSION)); } catch { return null; } },
+  setSession(u)     { localStorage.setItem(this.SESSION, JSON.stringify(u)); },
+  clearSession()    { localStorage.removeItem(this.SESSION); },
+
+  // ── Assignments ───────────────────────────────────────
+  getAssignments()  { try { return JSON.parse(localStorage.getItem(this.ASSIGNMENTS) || '[]'); } catch { return []; } },
+  saveAssignments(a){ localStorage.setItem(this.ASSIGNMENTS, JSON.stringify(a)); },
+
+  // ── Submissions ───────────────────────────────────────
+  getSubmissions()  { try { return JSON.parse(localStorage.getItem(this.SUBMISSIONS) || '[]'); } catch { return []; } },
+  saveSubmissions(s){ localStorage.setItem(this.SUBMISSIONS, JSON.stringify(s)); },
+
+  // ── Personal Tasks (per student) ──────────────────────
+  getPersonalTasks(uid) { try { return JSON.parse(localStorage.getItem(this.ptKey(uid)) || '[]'); } catch { return []; } },
+  savePersonalTasks(uid, t){ localStorage.setItem(this.ptKey(uid), JSON.stringify(t)); },
+
+  // ── Personal Events (per student) ─────────────────────
+  getPersonalEvents(uid) { try { return JSON.parse(localStorage.getItem(this.peKey(uid)) || '[]'); } catch { return []; } },
+  savePersonalEvents(uid, e){ localStorage.setItem(this.peKey(uid), JSON.stringify(e)); },
+
+  // ── Utilities ─────────────────────────────────────────
+  genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); },
+
+  getInitials(name) {
+    if (!name) return '??';
+    return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  },
+
+  fmtDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch { return dateStr; }
+  },
+
+  fmtDateTime(isoStr) {
+    if (!isoStr) return '—';
+    try {
+      const d = new Date(isoStr);
+      return d.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch { return isoStr; }
+  },
+
+  // ── Assignment helpers ────────────────────────────────
+  getAssignmentStatus(a) {
+    const subs = this.getSubmissions();
+    const sub  = subs.find(s => s.assignmentId === a.id);
+    if (sub) return 'submitted';
+    if (a.dueDate && new Date(a.dueDate) < new Date()) return 'overdue';
+    return 'pending';
+  },
+
+  getSubmissionFor(assignmentId) {
+    return this.getSubmissions().find(s => s.assignmentId === assignmentId) || null;
+  },
+
+  // ── Auth guard ────────────────────────────────────────
+  requireAuth(role) {
+    const s = this.getSession();
+    if (!s || s.role !== role) {
+      location.href = 'login.html';
+      return null;
+    }
+    return s;
+  },
+
+  // ── Toast ─────────────────────────────────────────────
+  toast(msg, type = '') {
+    const c = document.querySelector('.toast-container');
+    if (!c) return;
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' toast-' + type : '');
+    el.textContent = msg;
+    c.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 2700);
   }
-}
+};
 
-// ===== TASK HELPERS =====
-function createTask(title, desc, priority, dueDate) {
-  return {
-    id: Date.now(),
-    title: title.trim(),
-    desc: desc.trim(),
-    priority,   // 'high' | 'medium' | 'low'
-    dueDate,
-    done: false,
-    archived: false,
-    createdAt: new Date().toISOString()
-  };
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  // FIX 20: both day and month now use '2-digit' for consistent output e.g. "04/05/2025"
-  return d.toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-function isOverdue(dateStr) {
-  if (!dateStr) return false;
-  return new Date(dateStr + 'T00:00:00') < new Date(new Date().toDateString());
-}
-
-function escapeHTML(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g,  '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;');
-}
-
-// ===== TOAST =====
-function showToast(msg, duration = 2500) {
-  const container = document.querySelector('.toast-container');
-  if (!container) return;
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), duration);
-}
-
-// ===== MODAL HELPERS =====
-function openModal(modalId, overlayId) {
-  document.getElementById(modalId)?.classList.add('open');
-  document.getElementById(overlayId)?.classList.add('open');
-}
-
-function closeModal(modalId, overlayId) {
-  document.getElementById(modalId)?.classList.remove('open');
-  document.getElementById(overlayId)?.classList.remove('open');
-}
-
-// ===== KEYBOARD =====
-// FIX 16: 'Esc' → 'Escape' so modal closes correctly on modern browsers
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
-    document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
-  }
-});
-
-// ===== NAV ACTIVE STATE =====
-// FIX 15b: compare href attribute to current filename instead of innerHTML
-(function setActiveNav() {
-  const page = location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav-item').forEach(item => {
-    if (item.getAttribute('href') === page) item.classList.add('active');
-  });
-})();
-
-// ===== MOBILE SIDEBAR TOGGLE =====
-(function initSidebarToggle() {
-  const toggle  = document.getElementById('sidebar-toggle');
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  if (!toggle || !sidebar) return;
-
-  function openSidebar() {
-    sidebar.classList.add('open');
-    overlay?.classList.add('open');
-  }
-  function closeSidebar() {
-    sidebar.classList.remove('open');
-    overlay?.classList.remove('open');
-  }
-
-  toggle.addEventListener('click', openSidebar);
-  overlay?.addEventListener('click', closeSidebar);
-})();
+// ── Backward-compat stub (old pages removed, but ui.js may call loadTasks) ──
+function loadTasks() { return []; }

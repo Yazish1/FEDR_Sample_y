@@ -4,582 +4,91 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskFlow – Sign In</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <style>
-        /* ===== TOKENS (mirrors style.css) ===== */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #0c0e14;
-            --bg2: #11131c;
-            --surface: #181b27;
-            --surface2: #1f2235;
-            --surface3: #272b42;
-            --border: #2a2f4a;
-            --accent: #7c6dfa;
-            --accent-dim: #5a4fd4;
-            --accent2: #fa6d8f;
-            --success: #4ecca3;
-            --warn: #f9c74f;
-            --danger: #f94144;
-            --text: #dde1f5;
-            --text-muted: #7a80a8;
-            --text-faint: #454b6e;
-            --radius-sm: 6px;
-            --radius: 12px;
-            --radius-lg: 18px;
-            --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.65);
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            font-family: 'DM Sans', system-ui, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            /* subtle grid pattern */
-            background-image:
-                linear-gradient(rgba(124, 109, 250, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(124, 109, 250, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        /* ===== GLOW BLOBS ===== */
-        body::before,
-        body::after {
-            content: '';
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::before {
-            width: 400px;
-            height: 400px;
-            background: rgba(124, 109, 250, 0.10);
-            top: -100px;
-            left: -100px;
-        }
-
-        body::after {
-            width: 300px;
-            height: 300px;
-            background: rgba(250, 109, 143, 0.07);
-            bottom: -80px;
-            right: -80px;
-        }
-
-        /* ===== CARD ===== */
-        .auth-card {
-            position: relative;
-            z-index: 1;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 2.4rem 2.2rem 2rem;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: var(--shadow-lg);
-            animation: cardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-
-        @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(18px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* ===== LOGO ===== */
-        .auth-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            margin-bottom: 2rem;
-        }
-
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: var(--accent);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-        }
-
-        .logo-text {
-            font-size: 1.2rem;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-        }
-
-        /* ===== MODE TABS ===== */
-        .mode-tabs {
-            display: flex;
-            background: var(--surface2);
-            border-radius: var(--radius-sm);
-            padding: 3px;
-            margin-bottom: 1.6rem;
-            border: 1px solid var(--border);
-        }
-
-        .mode-tab {
-            flex: 1;
-            padding: 0.5rem;
-            text-align: center;
-            font-size: 0.86rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            border-radius: calc(var(--radius-sm) - 2px);
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            background: transparent;
-        }
-
-        .mode-tab.active {
-            background: var(--surface3);
-            color: var(--text);
-        }
-
-        /* ===== ROLE SELECTOR ===== */
-        .role-label {
-            font-size: 0.73rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.5rem;
-        }
-
-        .role-buttons {
-            display: flex;
-            gap: 0.6rem;
-            margin-bottom: 1.4rem;
-        }
-
-        .role-btn {
-            flex: 1;
-            padding: 0.65rem 0.5rem;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            background: var(--surface2);
-            color: var(--text-muted);
-            font-size: 0.86rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-
-        .role-btn:hover {
-            border-color: var(--accent);
-            color: var(--text);
-        }
-
-        .role-btn.selected {
-            border-color: var(--accent);
-            background: rgba(124, 109, 250, 0.12);
-            color: var(--text);
-        }
-
-        .role-btn .role-emoji {
-            font-size: 1.1rem;
-        }
-
-        /* ===== FORM ===== */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.73rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            margin-bottom: 0.35rem;
-        }
-
-        .req {
-            color: var(--accent2);
-        }
-
-        .form-control {
-            width: 100%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.65rem 0.9rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent);
-        }
-
-        .form-control.error {
-            border-color: var(--danger);
-        }
-
-        /* ===== ERROR MESSAGE ===== */
-        .error-msg {
-            display: none;
-            background: rgba(249, 65, 68, 0.10);
-            border: 1px solid rgba(249, 65, 68, 0.3);
-            color: #ff8082;
-            border-radius: var(--radius-sm);
-            padding: 0.65rem 0.9rem;
-            font-size: 0.83rem;
-            margin-bottom: 1rem;
-            animation: shake 0.3s ease;
-        }
-
-        .error-msg.visible {
-            display: block;
-        }
-
-        @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-4px);
-            }
-
-            75% {
-                transform: translateX(4px);
-            }
-        }
-
-        /* ===== SUBMIT BUTTON ===== */
-        .btn-submit {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 0.92rem;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 0.4rem;
-        }
-
-        .btn-submit.mode-signin {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-submit.mode-signin:hover {
-            background: var(--accent-dim);
-        }
-
-        .btn-submit.mode-signup {
-            background: var(--success);
-            color: #000;
-        }
-
-        .btn-submit.mode-signup:hover {
-            opacity: 0.88;
-        }
-
-        /* ===== FIELD VISIBILITY ===== */
-        .field-signup {
-            display: none;
-        }
-
-        .mode-signup-active .field-signup {
-            display: block;
-        }
-
-        /* ===== DIVIDER ===== */
-        .auth-divider {
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-faint);
-            margin-top: 1.4rem;
-        }
-
-        .auth-divider a {
-            color: var(--accent);
-            cursor: pointer;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-    </style>
+    <title>TaskFlow – Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/pages.css" />
 </head>
 
-<body>
+<body class="auth-body">
 
-    <div class="auth-card">
+    <!-- ===== LOGIN PAGE ===== -->
+    <div class="auth-page">
 
-        <!-- Logo -->
-        <div class="auth-logo">
-            <div class="logo-icon">⚡</div>
-            <span class="logo-text">TaskFlow</span>
+        <!-- Branding -->
+        <div class="auth-brand">
+            <div class="logo-icon" style="width:44px;height:44px;font-size:1.4rem;">⚡</div>
+            <span class="logo-text" style="font-size:1.5rem;">TaskFlow</span>
         </div>
 
-        <!-- Mode Tabs (L2) -->
-        <div class="mode-tabs" role="tablist">
-            <button class="mode-tab active" id="tab-signin" role="tab" aria-selected="true"
-                onclick="setMode('signin')">Sign In</button>
-            <button class="mode-tab" id="tab-signup" role="tab" aria-selected="false" onclick="setMode('signup')">Sign
-                Up</button>
-        </div>
+        <!-- Auth Card -->
+        <div class="auth-card">
 
-        <!-- Role Selector (L3) -->
-        <div class="role-label">I am a…</div>
-        <div class="role-buttons" id="role-buttons">
-            <button class="role-btn selected" id="role-teacher" onclick="selectRole('teacher')">
-                <span class="role-emoji">🎓</span> Teacher
-            </button>
-            <button class="role-btn" id="role-student" onclick="selectRole('student')">
-                <span class="role-emoji">📚</span> Student
-            </button>
-        </div>
-
-        <!-- Error Banner -->
-        <div class="error-msg" id="error-msg" role="alert"></div>
-
-        <!-- ===== FORM ===== -->
-        <div id="auth-form">
-
-            <!-- Sign Up only: Full Name (L4) -->
-            <div class="form-group field-signup">
-                <label class="form-label" for="inp-name">Full Name <span class="req">*</span></label>
-                <input id="inp-name" type="text" class="form-control" placeholder="Jamie Doe" autocomplete="name" />
+            <!-- L2: Mode tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-mode="signin">Sign In</button>
+                <button class="auth-tab" data-mode="signup">Sign Up</button>
             </div>
 
-            <!-- Email (L1) -->
-            <div class="form-group">
-                <label class="form-label" for="inp-email">Email <span class="req">*</span></label>
-                <input id="inp-email" type="email" class="form-control" placeholder="you@example.com"
-                    autocomplete="email" />
+            <!-- L3: Role selector -->
+            <div class="role-selector">
+                <button class="role-btn" data-role="teacher">
+                    <span class="role-icon">👨‍🏫</span>
+                    <span>Teacher</span>
+                </button>
+                <button class="role-btn active" data-role="student">
+                    <span class="role-icon">🎓</span>
+                    <span>Student</span>
+                </button>
             </div>
 
-            <!-- Password (L1) -->
-            <div class="form-group">
-                <label class="form-label" for="inp-password">Password <span class="req">*</span></label>
-                <input id="inp-password" type="password" class="form-control" placeholder="••••••••"
-                    autocomplete="current-password" />
+            <!-- Error message -->
+            <div id="auth-error" class="auth-error"></div>
+
+            <!-- L1: Sign In form -->
+            <div id="signin-form">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input id="si-email" type="email" class="form-control auth-input" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input id="si-pass" type="password" class="form-control auth-input" placeholder="••••••••" />
+                </div>
             </div>
 
-            <!-- Sign Up only: Confirm Password (L4) -->
-            <div class="form-group field-signup">
-                <label class="form-label" for="inp-confirm">Confirm Password <span class="req">*</span></label>
-                <input id="inp-confirm" type="password" class="form-control" placeholder="••••••••"
-                    autocomplete="new-password" />
+            <!-- L4: Sign Up form (hidden by default) -->
+            <div id="signup-form" style="display:none;">
+                <div class="form-group">
+                    <label class="form-label">Full Name <span class="req">*</span></label>
+                    <input id="su-name" type="text" class="form-control auth-input" placeholder="Jamie Doe" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email <span class="req">*</span></label>
+                    <input id="su-email" type="email" class="form-control auth-input" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password <span class="req">*</span> <span
+                            style="font-size:0.7rem;font-weight:400;">(min 6 chars)</span></label>
+                    <input id="su-pass" type="password" class="form-control auth-input" placeholder="••••••••" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password <span class="req">*</span></label>
+                    <input id="su-confirm" type="password" class="form-control auth-input" placeholder="••••••••" />
+                </div>
             </div>
 
-            <!-- Submit Button (L2 — label & colour change) -->
-            <button class="btn-submit mode-signin" id="btn-submit" onclick="handleSubmit()">
-                Sign In
-            </button>
+            <!-- Submit button -->
+            <button id="auth-submit" class="btn btn-auth btn-primary">Sign In</button>
 
-        </div><!-- /auth-form -->
+        </div><!-- /auth-card -->
 
-        <div class="auth-divider" id="mode-hint">
-            Don't have an account? <a onclick="setMode('signup')">Sign Up</a>
-        </div>
+    </div><!-- /auth-page -->
 
-    </div><!-- /auth-card -->
+    <div class="toast-container"></div>
 
-    <!-- Auth utilities -->
-    <script src="js/auth.js"></script>
-    <script>
-        /* ======================================================
-           LOGIN PAGE LOGIC
-           ====================================================== */
-
-        // L9 — auto-redirect if already logged in
-        redirectIfLoggedIn();
-
-        let currentMode = 'signin';   // 'signin' | 'signup'
-        let currentRole = 'teacher';  // 'teacher' | 'student'
-
-        // ===== MODE TOGGLE (L2) =====
-        function setMode(mode) {
-            currentMode = mode;
-            const form = document.getElementById('auth-form');
-            const btn = document.getElementById('btn-submit');
-            const hint = document.getElementById('mode-hint');
-
-            // Tab states
-            document.getElementById('tab-signin').classList.toggle('active', mode === 'signin');
-            document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
-
-            // Show/hide Sign-Up-only fields
-            form.classList.toggle('mode-signup-active', mode === 'signup');
-
-            // Button label & colour
-            btn.textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
-            btn.className = `btn-submit mode-${mode}`;
-
-            // Hint link
-            hint.innerHTML = mode === 'signin'
-                ? `Don't have an account? <a onclick="setMode('signup')">Sign Up</a>`
-                : `Already have an account? <a onclick="setMode('signin')">Sign In</a>`;
-
-            clearError();
-        }
-
-        // ===== ROLE SELECTOR (L3) =====
-        function selectRole(role) {
-            currentRole = role;
-            document.getElementById('role-teacher').classList.toggle('selected', role === 'teacher');
-            document.getElementById('role-student').classList.toggle('selected', role === 'student');
-            clearError();
-        }
-
-        // ===== ERROR HELPERS =====
-        function showError(msg) {
-            const el = document.getElementById('error-msg');
-            el.textContent = msg;
-            el.classList.add('visible');
-            // re-trigger shake
-            el.style.animation = 'none';
-            el.offsetHeight;
-            el.style.animation = '';
-        }
-
-        function clearError() {
-            document.getElementById('error-msg').classList.remove('visible');
-            document.querySelectorAll('.form-control').forEach(i => i.classList.remove('error'));
-        }
-
-        function markError(id) {
-            document.getElementById(id)?.classList.add('error');
-        }
-
-        // ===== SUBMIT HANDLER =====
-        function handleSubmit() {
-            clearError();
-            if (currentMode === 'signin') handleSignIn();
-            else handleSignUp();
-        }
-
-        // ===== SIGN IN (L6, L7) =====
-        function handleSignIn() {
-            const email = document.getElementById('inp-email').value.trim();
-            const password = document.getElementById('inp-password').value;
-
-            if (!email) { markError('inp-email'); return showError('Please enter your email.'); }
-            if (!password) { markError('inp-password'); return showError('Please enter your password.'); }
-
-            const account = findAccountByEmail(email);
-
-            // L6 — wrong email
-            if (!account) {
-                markError('inp-email');
-                return showError('No account found with that email address.');
-            }
-            // L6 — wrong password
-            if (account.password !== password) {
-                markError('inp-password');
-                return showError('Incorrect password. Please try again.');
-            }
-            // L6 — role mismatch
-            if (account.role !== currentRole) {
-                return showError(
-                    `This account is registered as a ${account.role}. Please select the correct role.`
-                );
-            }
-
-            // L7 — save session
-            saveSession({ id: account.id, name: account.name, email: account.email, role: account.role });
-
-            // L6 — redirect to matching dashboard
-            window.location.replace(account.role === 'teacher' ? 'index.html' : 'student.html');
-        }
-
-        // ===== SIGN UP (L4, L5) =====
-        function handleSignUp() {
-            const name = document.getElementById('inp-name').value.trim();
-            const email = document.getElementById('inp-email').value.trim();
-            const password = document.getElementById('inp-password').value;
-            const confirm = document.getElementById('inp-confirm').value;
-
-            // L4 — required fields
-            if (!name) {
-                markError('inp-name');
-                return showError('Please enter your full name.');
-            }
-            if (!email) {
-                markError('inp-email');
-                return showError('Please enter your email address.');
-            }
-            if (!isValidEmail(email)) {
-                markError('inp-email');
-                return showError('Please enter a valid email address.');
-            }
-            // L4 — minimum password length
-            if (password.length < 6) {
-                markError('inp-password');
-                return showError('Password must be at least 6 characters.');
-            }
-            // L4 — passwords match
-            if (password !== confirm) {
-                markError('inp-confirm');
-                return showError('Passwords do not match.');
-            }
-            // L4 — email already registered
-            if (findAccountByEmail(email)) {
-                markError('inp-email');
-                return showError('An account with that email already exists. Sign in instead.');
-            }
-
-            // L4 / L5 — create & store account
-            const account = registerAccount({ name, email, password, role: currentRole });
-
-            // L7 — save session immediately
-            saveSession({ id: account.id, name: account.name, email: account.email, role: account.role });
-
-            // Redirect to matching dashboard
-            window.location.replace(account.role === 'teacher' ? 'index.html' : 'student.html');
-        }
-
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
-        // Allow Enter key to submit
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Enter') handleSubmit();
-        });
-    </script>
+    <script src="js/app.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/login.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow – Student Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="shell">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text">TaskFlow</span>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Dashboard</div>
+                <span class="nav-item main-tab active" data-tab="assigned">
+                    <span class="nav-icon">📋</span> Assigned Tasks
+                </span>
+                <span class="nav-item main-tab" data-tab="schedule">
+                    <span class="nav-icon">📅</span> My Schedule
+                </span>
+                <span class="nav-item main-tab" data-tab="mytasks">
+                    <span class="nav-icon">✅</span> My Tasks
+                </span>
+                <span class="nav-item main-tab" data-tab="settings">
+                    <span class="nav-icon">⚙️</span> Settings
+                </span>
+            </div>
+
+            <!-- ST2: Dynamic student info -->
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="avatar" id="student-avatar">?</div>
+                    <div class="user-info">
+                        <div class="user-name" id="student-name">Loading…</div>
+                        <div class="user-role" id="student-role">Student</div>
+                    </div>
+                </div>
+                <button class="btn btn-ghost" id="btn-signout" style="width:100%;margin-top:0.6rem;font-size:0.8rem;">
+                    🚪 Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== CONTENT ===== -->
+        <div class="content">
+
+            <header class="topbar">
+                <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+                <h1 class="topbar-title">Assigned Tasks</h1>
+            </header>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: ASSIGNED TASKS
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="assigned">
+
+                <!-- ST3: Stat Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Assigned</div>
+                        <div class="stat-value" id="st-total">0</div>
+                        <div class="stat-sub">tasks for you</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-label">Submitted</div>
+                        <div class="stat-value" id="st-submitted">0</div>
+                        <div class="stat-sub">completed</div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-label">Outstanding</div>
+                        <div class="stat-value" id="st-outstanding">0</div>
+                        <div class="stat-sub">to do</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Personal Tasks</div>
+                        <div class="stat-value" id="st-personal">0</div>
+                        <div class="stat-sub">my tasks</div>
+                    </div>
+                </div>
+
+                <!-- ST4: Assigned tasks table (student-specific) -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Your Assignments</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="st-assigned-tbody">
+                            <tr>
+                                <td colspan="5" class="empty-cell">No tasks assigned yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: MY SCHEDULE (Calendar)
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="schedule" style="display:none;">
+
+                <!-- ST7: Monthly calendar -->
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div class="card-header">
+                        <button class="btn btn-ghost" id="cal-prev" style="padding:0.3rem 0.7rem;">‹</button>
+                        <span class="card-title" id="cal-title" style="flex:1;text-align:center;"></span>
+                        <button class="btn btn-ghost" id="cal-next" style="padding:0.3rem 0.7rem;">›</button>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="cal-legend">
+                        <span class="cal-legend-item"><span class="cal-legend-dot cal-ev-high"></span>High
+                            priority</span>
+                        <span class="cal-legend-item"><span class="cal-legend-dot cal-ev-medium"></span>Medium
+                            priority</span>
+                        <span class="cal-legend-item"><span class="cal-legend-dot cal-ev-low"></span>Low priority</span>
+                        <span class="cal-legend-item"><span
+                                class="cal-legend-dot cal-ev-submitted"></span>Submitted</span>
+                        <span class="cal-legend-item"><span class="cal-legend-dot cal-ev-event"></span>Personal
+                            event</span>
+                        <span class="cal-legend-item"><span class="cal-legend-dot cal-ev-personal"></span>Personal
+                            task</span>
+                    </div>
+
+                    <div id="cal-grid" class="cal-grid"></div>
+                </div>
+
+                <!-- ST9: Add personal event -->
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Add Personal Event</span></div>
+                    <div style="padding:1.2rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Title <span class="req">*</span></label>
+                            <input type="text" id="ev-title" class="form-control" placeholder="Event title" />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Date &amp; Time <span class="req">*</span></label>
+                            <input type="datetime-local" id="ev-date" class="form-control" />
+                        </div>
+                        <div class="form-group" style="margin:0;grid-column:1/-1;">
+                            <label class="form-label">Note (optional)</label>
+                            <input type="text" id="ev-note" class="form-control" placeholder="Optional note…" />
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <button class="btn btn-primary" id="btn-add-event">+ Add Event</button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: MY TASKS
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="mytasks" style="display:none;">
+
+                <!-- Add task form -->
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div class="card-header"><span class="card-title">Add Personal Task</span></div>
+                    <div style="padding:1.2rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="form-group" style="margin:0;grid-column:1/-1;">
+                            <label class="form-label">Title <span class="req">*</span></label>
+                            <input type="text" id="pt-title" class="form-control"
+                                placeholder="What needs to be done?" />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Priority</label>
+                            <select id="pt-priority" class="form-control">
+                                <option value="">— Select —</option>
+                                <option value="high">🔴 High</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="low">🟢 Low</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" id="pt-date" class="form-control" />
+                        </div>
+                        <div class="form-group" style="margin:0;grid-column:1/-1;">
+                            <label class="form-label">Description</label>
+                            <input type="text" id="pt-desc" class="form-control" placeholder="Optional details…" />
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <button class="btn btn-primary" id="btn-add-pt">+ Add Task</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ST11: Tasks list -->
+                <div id="pt-list"></div>
+
+            </main>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: SETTINGS (ST13-ST15)
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="settings" style="display:none;">
+                <div class="settings-layout">
+                    <nav class="settings-nav">
+                        <span class="settings-nav-item active" data-tab="profile">👤 Profile</span>
+                        <span class="settings-nav-item" data-tab="notifications">🔔 Notifications</span>
+                        <span class="settings-nav-item" data-tab="appearance">🎨 Appearance</span>
+                        <span class="settings-nav-item" data-tab="data">🗄️ Data</span>
+                    </nav>
+
+                    <div>
+                        <!-- Profile -->
+                        <div class="settings-panel" data-panel="profile" style="display:flex;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Profile Information</div>
+                                </div>
+                                <div class="settings-card-body" style="display:flex;flex-direction:column;gap:1rem;">
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Display Name</label>
+                                        <input type="text" id="st-s-name" class="form-control" />
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" id="st-s-email" class="form-control" />
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">New Password <span
+                                                style="font-weight:400;text-transform:none;">(leave blank to keep
+                                                current)</span></label>
+                                        <input type="password" id="st-s-pass" class="form-control"
+                                            placeholder="••••••••" />
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Confirm New Password</label>
+                                        <input type="password" id="st-s-pass2" class="form-control"
+                                            placeholder="••••••••" />
+                                    </div>
+                                    <div><button class="btn btn-primary" id="btn-save-student-profile">Save
+                                            Changes</button></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="settings-panel" data-panel="notifications" style="display:none;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Notification Preferences</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Task Due Reminders</div>
+                                            <div class="settings-row-sub">Notify when a task is due soon</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" checked /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Overdue Alerts</div>
+                                            <div class="settings-row-sub">Alert when tasks pass due date</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" checked /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Weekly Summary</div>
+                                            <div class="settings-row-sub">Weekly progress digest</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Appearance -->
+                        <div class="settings-panel" data-panel="appearance" style="display:none;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Appearance</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Compact Mode</div>
+                                            <div class="settings-row-sub">Reduce padding for denser layout</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Show Sidebar Labels</div>
+                                            <div class="settings-row-sub">Always show text labels next to icons</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" checked /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Management -->
+                        <div class="settings-panel" data-panel="data" style="display:none;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Data Management</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Assigned tasks</div>
+                                        </div>
+                                        <span id="st-data-assigned" style="font-weight:700;">0</span>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Personal tasks</div>
+                                        </div>
+                                        <span id="st-data-personal" style="font-weight:700;">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-card danger-zone">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title" style="color:var(--danger)">⚠️ Danger Zone</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Delete all personal tasks</div>
+                                            <div class="settings-row-sub">Permanently removes your personal tasks.
+                                                Cannot be undone.</div>
+                                        </div>
+                                        <button class="btn btn-danger" id="btn-clear-student">Delete All</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </main>
+
+        </div><!-- /content -->
+    </div><!-- /shell -->
+
+    <!-- ===== SUBMIT TASK MODAL ===== -->
+    <div class="overlay" id="submit-overlay"></div>
+    <div class="modal" id="submit-modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Submit Task</h2>
+            <button class="modal-close submit-cancel">✕</button>
+        </div>
+        <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:1rem;">
+            Submitting: <strong id="sub-task-title"></strong>
+        </p>
+        <input type="hidden" id="sub-task-id" />
+        <input type="hidden" id="sub-priority" />
+        <div class="form-group">
+            <label class="form-label">Note (optional)</label>
+            <textarea id="sub-note" class="form-control" placeholder="Add a note to your submission…"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost submit-cancel">Cancel</button>
+            <button class="btn btn-success" id="btn-confirm-submit">✓ Submit Task</button>
+        </div>
+    </div>
+
+    <!-- ===== CALENDAR EVENT POPUP (ST10) ===== -->
+    <div class="overlay" id="event-popup-overlay"></div>
+    <div class="modal" id="event-popup" style="max-width:380px;">
+        <div class="modal-header">
+            <h2 class="modal-title" id="popup-type" style="font-size:0.95rem;">Event Details</h2>
+            <button class="modal-close" id="btn-close-popup">✕</button>
+        </div>
+        <div class="detail-grid" style="gap:0.9rem;">
+            <div>
+                <span class="detail-label">Title</span>
+                <span id="popup-title" style="font-weight:600;font-size:0.95rem;"></span>
+            </div>
+            <div>
+                <span class="detail-label">Date</span>
+                <span id="popup-date"></span>
+            </div>
+            <div>
+                <span class="detail-label">Status</span>
+                <span id="popup-status"></span>
+            </div>
+            <div id="popup-priority-row">
+                <span class="detail-label">Priority</span>
+                <span id="popup-priority"></span>
+            </div>
+            <div>
+                <span class="detail-label">Note</span>
+                <span id="popup-note" style="color:var(--text-muted);font-size:0.84rem;"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/student.js"></script>
+</body>
+
+</html>

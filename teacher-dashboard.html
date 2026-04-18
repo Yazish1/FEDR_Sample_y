@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow – Teacher Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="shell">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text">TaskFlow</span>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Dashboard</div>
+                <!-- Main tab navigation -->
+                <span class="nav-item main-tab active" data-tab="assigned">
+                    <span class="nav-icon">📋</span> Assigned Tasks
+                </span>
+                <span class="nav-item main-tab" data-tab="submissions">
+                    <span class="nav-icon">📥</span> Submissions
+                </span>
+                <span class="nav-item main-tab" data-tab="settings">
+                    <span class="nav-icon">⚙️</span> Settings
+                </span>
+            </div>
+
+            <!-- T2: Dynamic teacher info -->
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="avatar" id="teacher-avatar">?</div>
+                    <div class="user-info">
+                        <div class="user-name" id="teacher-name">Loading…</div>
+                        <div class="user-role" id="teacher-role">Teacher</div>
+                    </div>
+                </div>
+                <button class="btn btn-ghost" id="btn-signout" style="width:100%;margin-top:0.6rem;font-size:0.8rem;">
+                    🚪 Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== CONTENT ===== -->
+        <div class="content">
+
+            <!-- Top Bar -->
+            <header class="topbar">
+                <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+                <h1 class="topbar-title" id="topbar-title">Assigned Tasks</h1>
+                <div class="topbar-actions">
+                    <!-- Only show Assign button on assigned tab -->
+                    <button class="btn btn-primary" id="btn-assign">+ Assign Task</button>
+                </div>
+            </header>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: ASSIGNED TASKS
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="assigned">
+
+                <!-- T3: Stat Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Assigned</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-sub">tasks created</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-label">Submitted</div>
+                        <div class="stat-value" id="stat-submitted">0</div>
+                        <div class="stat-sub">by students</div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value" id="stat-pending">0</div>
+                        <div class="stat-sub">not yet done</div>
+                    </div>
+                    <div class="stat-card" id="stat-rate-card">
+                        <div class="stat-label">Submission Rate</div>
+                        <div class="stat-value" id="stat-rate">0%</div>
+                        <div class="progress-wrap">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- T7 + T12: Search + Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">All Assignments</span>
+                        <input type="text" id="task-search" class="search-box" placeholder="Search by title or student…"
+                            style="max-width:260px;" />
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Student</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th style="width:60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="assigned-tbody">
+                            <tr>
+                                <td colspan="6" class="empty-cell">No tasks assigned yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: SUBMISSIONS
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="submissions" style="display:none;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">All Submissions</span>
+                        <span style="font-size:0.78rem;color:var(--text-muted);">Most recent first</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Task Title</th>
+                                <th>Priority</th>
+                                <th>Submitted At</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subs-tbody">
+                            <tr>
+                                <td colspan="5" class="empty-cell">No submissions yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+            <!-- ═══════════════════════════════════════════════════
+         PANEL: SETTINGS  (T13-T15)
+    ═══════════════════════════════════════════════════ -->
+            <main class="page-body main-panel" data-panel="settings" style="display:none;">
+                <div class="settings-layout">
+
+                    <!-- Settings sidebar nav -->
+                    <nav class="settings-nav">
+                        <span class="settings-nav-item active" data-tab="profile">👤 Profile</span>
+                        <span class="settings-nav-item" data-tab="notifications">🔔 Notifications</span>
+                        <span class="settings-nav-item" data-tab="appearance">🎨 Appearance</span>
+                        <span class="settings-nav-item" data-tab="data">🗄️ Data</span>
+                    </nav>
+
+                    <div>
+                        <!-- Profile -->
+                        <div class="settings-panel" data-panel="profile" style="display:flex;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Profile Information</div>
+                                </div>
+                                <div class="settings-card-body" style="display:flex;flex-direction:column;gap:1rem;">
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Display Name</label>
+                                        <input type="text" id="t-s-name" class="form-control" />
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" id="t-s-email" class="form-control" />
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">New Password <span
+                                                style="font-weight:400;text-transform:none;">(leave blank to keep
+                                                current)</span></label>
+                                        <input type="password" id="t-s-pass" class="form-control"
+                                            placeholder="••••••••" />
+                                    </div>
+                                    <div class="form-group" style="margin:0;">
+                                        <label class="form-label">Confirm New Password</label>
+                                        <input type="password" id="t-s-pass2" class="form-control"
+                                            placeholder="••••••••" />
+                                    </div>
+                                    <div><button class="btn btn-primary" id="btn-save-teacher-profile">Save
+                                            Changes</button></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="settings-panel" data-panel="notifications" style="display:none;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Notification Preferences</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Task Due Reminders</div>
+                                            <div class="settings-row-sub">Get notified when a task is due soon</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" checked /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Overdue Alerts</div>
+                                            <div class="settings-row-sub">Alert when tasks pass their due date</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" checked /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Weekly Summary</div>
+                                            <div class="settings-row-sub">Receive a weekly digest of progress</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Appearance -->
+                        <div class="settings-panel" data-panel="appearance" style="display:none;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Appearance</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Compact Mode</div>
+                                            <div class="settings-row-sub">Reduce padding for a denser layout</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Show Sidebar Labels</div>
+                                            <div class="settings-row-sub">Always show text labels next to icons</div>
+                                        </div>
+                                        <label class="toggle"><input type="checkbox" checked /><span
+                                                class="toggle-slider"></span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Management -->
+                        <div class="settings-panel" data-panel="data" style="display:none;">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title">Data Management</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Total assigned tasks</div>
+                                        </div>
+                                        <span id="t-data-assignments" style="font-weight:700;">0</span>
+                                    </div>
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Registered students</div>
+                                        </div>
+                                        <span id="t-data-students" style="font-weight:700;">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-card danger-zone">
+                                <div class="settings-card-header">
+                                    <div class="settings-card-title" style="color:var(--danger)">⚠️ Danger Zone</div>
+                                </div>
+                                <div class="settings-card-body">
+                                    <div class="settings-row">
+                                        <div>
+                                            <div class="settings-row-label">Delete all assignments &amp; submissions
+                                            </div>
+                                            <div class="settings-row-sub">Permanently removes all data. Cannot be
+                                                undone.</div>
+                                        </div>
+                                        <button class="btn btn-danger" id="btn-clear-teacher">Delete All</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /panels wrapper -->
+                </div><!-- /settings-layout -->
+            </main>
+
+        </div><!-- /content -->
+    </div><!-- /shell -->
+
+    <!-- ===== ASSIGN TASK MODAL ===== -->
+    <div class="overlay" id="assign-overlay"></div>
+    <div class="modal" id="assign-modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Assign Task</h2>
+            <button class="modal-close assign-cancel">✕</button>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Title <span class="req">*</span></label>
+            <input type="text" id="a-title" class="form-control" placeholder="What needs to be done?" />
+        </div>
+        <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="a-desc" class="form-control" placeholder="Optional details…"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Priority <span class="req">*</span></label>
+            <select id="a-priority" class="form-control">
+                <option value="">— Select priority —</option>
+                <option value="high">🔴 High</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="low">🟢 Low</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Due Date</label>
+            <input type="date" id="a-date" class="form-control" />
+        </div>
+
+        <!-- T4: Student checklist -->
+        <div class="form-group">
+            <label class="form-label">Assign To <span class="req">*</span></label>
+            <!-- T6: Select all -->
+            <label class="student-check-row"
+                style="border-bottom:1px solid var(--border);padding-bottom:0.6rem;margin-bottom:0.4rem;">
+                <input type="checkbox" id="select-all-students" />
+                <span style="font-size:0.84rem;font-weight:700;color:var(--text);">Select All Students</span>
+            </label>
+            <div id="student-checklist"
+                style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:0.3rem;"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-ghost assign-cancel">Cancel</button>
+            <button class="btn btn-primary" id="btn-save-assign">Assign Task</button>
+        </div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/teacher.js"></script>
+</body>
+
+</html>
